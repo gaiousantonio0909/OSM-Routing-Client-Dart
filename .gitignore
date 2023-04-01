@@ -75,4 +75,3 @@ build/
 !**/ios/**/default.perspectivev3
 /coverage/lcov.info
 /tagManager.sh
-pubspec.lock

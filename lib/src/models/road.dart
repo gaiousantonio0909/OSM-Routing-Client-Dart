@@ -2,22 +2,10 @@ import '../../routing_client_dart.dart';
 import '../utilities/utils.dart';
 
 class Road {
-  /// this attribute is the  distance of the route in km
   final double distance;
-
-  /// this attribute is the duration of route in second
   final double duration;
-
-  /// the instruction that user should follow to reach t destination from started location
   List<RoadInstruction> instructions = [];
-
-  /// this is the encoded list of lnglat that should decoded to get list of geopoint
-  /// this attribute can be null if the geometry == geojson
-  final String? polylineEncoded;
-
-  /// this is list of geopoint of the route,this attribute is not null if geometry equal to geojson
-  /// except that use always [polylineEncoded]
-  List<LngLat>? polyline;
+  final String polylineEncoded;
   List<Road>? _alternativesRoads;
   bool _isError = false;
   RoadDetailInfo details = RoadDetailInfo();
@@ -30,7 +18,7 @@ class Road {
   Road.minimize({
     required this.distance,
     required this.duration,
-    this.polylineEncoded,
+    required this.polylineEncoded,
   });
 
   Road({
@@ -46,26 +34,13 @@ class Road {
   Road.fromOSRMJson(Map route, String languageCode)
       : distance = (double.parse(route["distance"].toString())) / 1000,
         duration = double.parse(route["duration"].toString()),
-        polylineEncoded = route["geometry"].runtimeType == String
-            ? route["geometry"] as String
-            : null {
-    if (route["geometry"].runtimeType != String) {
-      final List<List<dynamic>> listOfPoints =
-          List.castFrom(route["geometry"]["coordinates"]);
-
-      polyline = listOfPoints
-          .map((e) => LngLat(
-                lng: e.first,
-                lat: e.last,
-              ))
-          .toList();
-    }
+        polylineEncoded = route["geometry"] as String {
     if ((route).containsKey("legs")) {
       final List<Map<String, dynamic>> mapLegs = List.castFrom(route["legs"]);
       for (var leg in mapLegs) {
         final RoadLeg legRoad = RoadLeg(
-          parseToDouble(leg["distance"]),
-          parseToDouble(leg["duration"]),
+          leg["distance"],
+          (leg["duration"] as double),
         );
         details.roadLegs.add(legRoad);
         if ((leg).containsKey("steps")) {

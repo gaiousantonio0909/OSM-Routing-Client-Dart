@@ -20,11 +20,11 @@ void main() {
     final manager = OSRMManager();
     final urlGenerated = manager.generatePath(
       waypoint,
-      geometries: Geometries.polyline,
+      geometrie: Geometries.polyline,
       steps: true,
     );
     String shouldBrUrl =
-        "$oSRMServer/routed-car/route/v1/diving/$waypoint?steps=true&overview=full&geometries=polyline";
+        "$oSRMServer/routed-car/route/v1/diving/$waypoint?alternatives=false&steps=true&overview=full&geometries=polyline";
     expect(urlGenerated, shouldBrUrl);
   });
 
@@ -37,11 +37,11 @@ void main() {
     final manager = OSRMManager();
     final road = await manager.getRoad(
       waypoints: waypoints,
-      geometries: Geometries.polyline,
+      geometrie: Geometries.polyline,
       steps: true,
       languageCode: "en",
     );
-    expect(road.distance.toStringAsFixed(2), 4.7338.toStringAsFixed(2));
+    expect(road.distance, 4.7238);
     expect(road.duration >= 615.0, true);
   });
   test("test get road without steps", () async {
@@ -53,45 +53,12 @@ void main() {
     final manager = OSRMManager();
     final road = await manager.getRoad(
         waypoints: waypoints,
-        geometries: Geometries.polyline,
+        geometrie: Geometries.polyline,
         steps: false,
         languageCode: "en");
     expect(road.instructions.isEmpty, true);
   });
-  test("test if polyline not null when geometry is geojson", () async {
-    List<LngLat> waypoints = [
-      LngLat(lng: 13.388860, lat: 52.517037),
-      LngLat(lng: 13.397634, lat: 52.529407),
-      LngLat(lng: 13.428555, lat: 52.523219),
-    ];
-    final manager = OSRMManager();
-    final road = await manager.getRoad(
-        waypoints: waypoints,
-        geometries: Geometries.geojson,
-        steps: false,
-        languageCode: "en");
-    expect(road.polyline != null, true);
-    expect(road.polyline!.isNotEmpty, true);
-  });
 
-  /// distance 7982.2 , duration 945.6
-  test("test get trip", () async {
-    List<LngLat> waypoints = [
-      LngLat(lng: 13.388860, lat: 52.517037),
-      LngLat(lng: 13.397634, lat: 52.529407),
-      LngLat(lng: 13.428555, lat: 52.523219),
-    ];
-    final manager = OSRMManager();
-    final road = await manager.getTrip(
-        waypoints: waypoints,
-        destination: DestinationGeoPointOption.last,
-        source: SourceGeoPointOption.first,
-        geometries: Geometries.polyline,
-        steps: false,
-        languageCode: "en");
-    expect(road.distance >= 7.9822, true);
-    expect(road.duration >= 945.6, true);
-  });
   test("test parser", () async {
     final responseApi = {
       "code": "Ok",
@@ -761,7 +728,7 @@ void main() {
         }
       ]
     };
-    Road road = await parseRoad(ParserRoadComputeArg(
+    Road road = await parseRoad(ParserRoadComputerArg(
       jsonRoad: responseApi,
       langCode: "en",
     ));

@@ -3,17 +3,8 @@ import '../models/road.dart';
 import 'computes_utilities.dart';
 
 enum RoadType { car, foot, bike }
-enum Profile { route, trip }
 enum Overview { simplified, full, none }
 enum Geometries { polyline, polyline6, geojson }
-enum SourceGeoPointOption {
-  any,
-  first,
-}
-enum DestinationGeoPointOption {
-  any,
-  last,
-}
 
 extension RoadTypeExtension on RoadType {
   String get value {
@@ -41,13 +32,13 @@ extension TransformToWaysOSRM on List<LngLat> {
 }
 
 /// parseRoad
-/// this method used to parse json get it  from route service to [Road] object
+/// this method used to parse json get from routing server to [Road] object
 /// we use this method in another thread like compute
-/// the [data] is [ParserRoadComputeArg] that will to be parsed to [Road]
+/// get [data] as List of map objects to be parse and to [Road]
 /// fix parsing problem [#1]
 /// return [Road] object that contain list of waypoint
 /// and distance and duration of the road
-Future<Road> parseRoad(ParserRoadComputeArg data) async {
+Future<Road> parseRoad(ParserRoadComputerArg data) async {
   Map<String, dynamic> jsonResponse = data.jsonRoad;
   String languageCode = data.langCode;
   bool alternative = data.alternative;
@@ -55,9 +46,10 @@ Future<Road> parseRoad(ParserRoadComputeArg data) async {
   final List<Map<String, dynamic>> routes =
       List.castFrom(jsonResponse["routes"]);
 
-  final route = routes.first;
-  road = Road.fromOSRMJson(route, languageCode);
-
+  if (routes.length == 1) {
+    final route = routes.first;
+    road = Road.fromOSRMJson(route, languageCode);
+  }
   if (routes.length > 1 && alternative) {
     routes.removeAt(0);
     for (var route in routes) {
@@ -68,32 +60,6 @@ Future<Road> parseRoad(ParserRoadComputeArg data) async {
 
   return road;
 }
-
-/// parseTrip
-/// this method used to parse json get from trip service,
-/// the [data] is  [ParserTripComputeArg] that contain information need it to be parsed to [Road]
-/// such as json map and language that will be instruction
-/// return [Road] object that contain list of waypoint and other information
-/// this road represent trip that will pass by all geopoint entered as args
-/// and this road will not be the shortes route
-Future<Road> parseTrip(ParserTripComputeArg data) async {
-  Map<String, dynamic> jsonResponse = data.jsonRoad;
-  String languageCode = data.langCode;
-  var road = Road.empty();
-  final List<Map<String, dynamic>> routes =
-      List.castFrom(jsonResponse["trips"]);
-
-  final route = routes.first;
-  road = Road.fromOSRMJson(route, languageCode);
-
-  return road;
-}
-
-double parseToDouble(dynamic value){
-  return double.parse(value.toString());
-}
-
-
 
 const String oSRMServer = "https://routing.openstreetmap.de";
 

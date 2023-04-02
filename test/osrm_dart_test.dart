@@ -24,7 +24,7 @@ void main() {
       steps: true,
     );
     String shouldBrUrl =
-        "$oSRMServer/routed-car/route/v1/diving/$waypoint?alternatives=false&steps=true&overview=full&geometries=polyline";
+        "$oSRMServer/route/v1/diving/$waypoint?alternatives=false&steps=true&overview=full&geometries=polyline";
     expect(urlGenerated, shouldBrUrl);
   });
 

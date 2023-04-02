@@ -109,7 +109,7 @@ extension OSRMPrivateFunct on OSRMManager {
     Overview overview = Overview.full,
     Geometries geometrie = Geometries.polyline,
   }) {
-    String url = "$server/routed-${roadType.value}/route/v1/diving/$waypoints";
+    String url = "$server/route/v1/diving/$waypoints";
     String option = "";
     option += "alternatives=$getAlternatives&";
     option += "steps=$steps&";
